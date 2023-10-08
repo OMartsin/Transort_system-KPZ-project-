@@ -13,27 +13,28 @@ public partial class TransportSystemContext : DbContext
     public TransportSystemContext(DbContextOptions<TransportSystemContext> options)
         : base(options)
     {
+        
     }
 
-    public virtual DbSet<Accounting> Accountings { get; set; }
+    public virtual DbSet<Accounting> Accounting { get; set; }
 
     public virtual DbSet<Agent> Agents { get; set; }
 
     public virtual DbSet<Cargo> Cargos { get; set; }
 
-    public virtual DbSet<Deliverylog> Deliverylogs { get; set; }
+    public virtual DbSet<DeliveryLog> DeliveryLog { get; set; }
 
     public virtual DbSet<Driver> Drivers { get; set; }
 
-    public virtual DbSet<Drivercontract> Drivercontracts { get; set; }
+    public virtual DbSet<DriverContract> DriverContracts { get; set; }
 
-    public virtual DbSet<Driverlicense> Driverlicenses { get; set; }
+    public virtual DbSet<DriverLicense> DriverLicenses { get; set; }
 
-    public virtual DbSet<Licensecategory> Licensecategories { get; set; }
+    public virtual DbSet<LicenseCategory> LicenseCategories { get; set; }
 
     public virtual DbSet<Trailer> Trailers { get; set; }
 
-    public virtual DbSet<Transportinsurance> Transportinsurances { get; set; }
+    public virtual DbSet<TransportInsurance> TransportInsurances { get; set; }
 
     public virtual DbSet<Trip> Trips { get; set; }
 
@@ -42,7 +43,6 @@ public partial class TransportSystemContext : DbContext
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseMySql("server=localhost;database=transport_system;user=root;password=12345678", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.32-mysql"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -63,7 +63,7 @@ public partial class TransportSystemContext : DbContext
             entity.Property(e => e.OperationDescription).HasMaxLength(120);
             entity.Property(e => e.OperationName).HasMaxLength(45);
 
-            entity.HasOne(d => d.OperationAgent).WithMany(p => p.Accountings)
+            entity.HasOne(d => d.OperationAgent).WithMany(p => p.Accounting)
                 .HasForeignKey(d => d.OperationAgentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("accounting_agent_id");
@@ -98,7 +98,7 @@ public partial class TransportSystemContext : DbContext
             entity.Property(e => e.CargoName).HasMaxLength(45);
         });
 
-        modelBuilder.Entity<Deliverylog>(entity =>
+        modelBuilder.Entity<DeliveryLog>(entity =>
         {
             entity.HasKey(e => e.DeliveryLogId).HasName("PRIMARY");
 
@@ -106,12 +106,12 @@ public partial class TransportSystemContext : DbContext
 
             entity.HasIndex(e => e.TripId, "log_trip_id_idx");
 
-            entity.Property(e => e.LogOperatioName).HasMaxLength(45);
+            entity.Property(e => e.LogOperationName).HasMaxLength(45);
             entity.Property(e => e.LogOperationDescription).HasMaxLength(120);
             entity.Property(e => e.LogOperationLocationCity).HasMaxLength(45);
             entity.Property(e => e.OperationDateTime).HasColumnType("datetime");
 
-            entity.HasOne(d => d.Trip).WithMany(p => p.Deliverylogs)
+            entity.HasOne(d => d.Trip).WithMany(p => p.DeliveryLog)
                 .HasForeignKey(d => d.TripId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("log_trip_id");
@@ -139,7 +139,7 @@ public partial class TransportSystemContext : DbContext
             entity.Property(e => e.DriversPassportNumber).HasMaxLength(15);
         });
 
-        modelBuilder.Entity<Drivercontract>(entity =>
+        modelBuilder.Entity<DriverContract>(entity =>
         {
             entity.HasKey(e => e.ContractId).HasName("PRIMARY");
 
@@ -152,13 +152,13 @@ public partial class TransportSystemContext : DbContext
             entity.Property(e => e.ContractId).HasColumnName("ContractID");
             entity.Property(e => e.ContractDriverId).HasColumnName("ContractDriverID");
 
-            entity.HasOne(d => d.ContractDriver).WithMany(p => p.Drivercontracts)
+            entity.HasOne(d => d.ContractDriver).WithMany(p => p.DriverContracts)
                 .HasForeignKey(d => d.ContractDriverId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("contract_driver_id");
         });
 
-        modelBuilder.Entity<Driverlicense>(entity =>
+        modelBuilder.Entity<DriverLicense>(entity =>
         {
             entity.HasKey(e => e.LicenseId).HasName("PRIMARY");
 
@@ -170,18 +170,18 @@ public partial class TransportSystemContext : DbContext
             entity.Property(e => e.DriverId).HasColumnName("DriverID");
             entity.Property(e => e.LicenseNumber).HasMaxLength(20);
 
-            entity.HasOne(d => d.Driver).WithMany(p => p.Driverlicenses)
+            entity.HasOne(d => d.Driver).WithMany(p => p.DriverLicenses)
                 .HasForeignKey(d => d.DriverId)
                 .HasConstraintName("driverlicenses_ibfk_1");
 
             entity.HasMany(d => d.Categories).WithMany(p => p.Licenses)
                 .UsingEntity<Dictionary<string, object>>(
                     "Driverlicensecategory",
-                    r => r.HasOne<Licensecategory>().WithMany()
+                    r => r.HasOne<LicenseCategory>().WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("licenses_driverlicensecategories_id"),
-                    l => l.HasOne<Driverlicense>().WithMany()
+                    l => l.HasOne<DriverLicense>().WithMany()
                         .HasForeignKey("LicenseId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("driverlicensecategories_ibfk_1"),
@@ -198,7 +198,7 @@ public partial class TransportSystemContext : DbContext
                     });
         });
 
-        modelBuilder.Entity<Licensecategory>(entity =>
+        modelBuilder.Entity<LicenseCategory>(entity =>
         {
             entity.HasKey(e => e.CategoryId).HasName("PRIMARY");
 
@@ -228,7 +228,7 @@ public partial class TransportSystemContext : DbContext
             entity.Property(e => e.TrailerVendor).HasMaxLength(30);
         });
 
-        modelBuilder.Entity<Transportinsurance>(entity =>
+        modelBuilder.Entity<TransportInsurance>(entity =>
         {
             entity.HasKey(e => e.TransportInsuranceId).HasName("PRIMARY");
 
@@ -245,7 +245,7 @@ public partial class TransportSystemContext : DbContext
             entity.Property(e => e.InsuranceTruckId).HasColumnName("InsuranceTruckID");
             entity.Property(e => e.PolicyNumber).HasMaxLength(50);
 
-            entity.HasOne(d => d.InsuranceAgent).WithMany(p => p.Transportinsurances)
+            entity.HasOne(d => d.InsuranceAgent).WithMany(p => p.TransportInsurances)
                 .HasForeignKey(d => d.InsuranceAgentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("insurance_agent_id");
@@ -254,7 +254,7 @@ public partial class TransportSystemContext : DbContext
                 .HasForeignKey(d => d.InsuranceTrailerId)
                 .HasConstraintName("insurance_trailer_id");
 
-            entity.HasOne(d => d.InsuranceTruck).WithMany(p => p.Transportinsurances)
+            entity.HasOne(d => d.InsuranceTruck).WithMany(p => p.TransportInsurances)
                 .HasForeignKey(d => d.InsuranceTruckId)
                 .HasConstraintName("insurance_truck_id");
         });
@@ -295,12 +295,12 @@ public partial class TransportSystemContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("trip_cargo_id");
 
-            entity.HasOne(d => d.TripDriver1).WithMany(p => p.TripTripDriver1s)
+            entity.HasOne(d => d.TripDriver1).WithMany(p => p.TripDriver)
                 .HasForeignKey(d => d.TripDriver1Id)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("trip_driver_id");
 
-            entity.HasOne(d => d.TripDriver2).WithMany(p => p.TripTripDriver2s)
+            entity.HasOne(d => d.TripDriver2).WithMany(p => p.TripDriver)
                 .HasForeignKey(d => d.TripDriver2Id)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("trip_driver2_id");

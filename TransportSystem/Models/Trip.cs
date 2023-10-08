@@ -25,7 +25,7 @@ public partial class Trip
 
     public DateOnly? TripCompletion { get; set; }
 
-    public virtual ICollection<Deliverylog> Deliverylogs { get; set; } = new List<Deliverylog>();
+    public virtual ICollection<DeliveryLog> DeliveryLog { get; set; } = new List<DeliveryLog>();
 
     public virtual Agent TripAgent { get; set; } = null!;
 

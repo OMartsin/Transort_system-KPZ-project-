@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace WebApplication1.Models;
 
-public partial class Licensecategory
+public partial class LicenseCategory
 {
     public int CategoryId { get; set; }
 
@@ -11,5 +11,5 @@ public partial class Licensecategory
     
     public string? CategoryDescription { get; set; }
 
-    public virtual ICollection<Driverlicense> Licenses { get; set; } = new List<Driverlicense>();
+    public virtual ICollection<DriverLicense> Licenses { get; set; } = new List<DriverLicense>();
 }

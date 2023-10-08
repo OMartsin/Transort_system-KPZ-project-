@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace WebApplication1.Models;
 
-public partial class Transportinsurance
+public partial class TransportInsurance
 {
     public int TransportInsuranceId { get; set; }
 

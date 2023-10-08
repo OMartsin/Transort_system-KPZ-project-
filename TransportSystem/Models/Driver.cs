@@ -25,13 +25,11 @@ public partial class Driver
 
     public int? DriverContractId { get; set; }
 
-    public virtual ICollection<Drivercontract> Drivercontracts { get; set; } = new List<Drivercontract>();
+    public virtual ICollection<DriverContract> DriverContracts { get; set; } = new List<DriverContract>();
 
-    public virtual ICollection<Driverlicense> Driverlicenses { get; set; } = new List<Driverlicense>();
+    public virtual ICollection<DriverLicense> DriverLicenses { get; set; } = new List<DriverLicense>();
 
-    public virtual ICollection<Trip> TripTripDriver1s { get; set; } = new List<Trip>();
-
-    public virtual ICollection<Trip> TripTripDriver2s { get; set; } = new List<Trip>();
+    public virtual ICollection<Trip> TripDriver { get; set; } = new List<Trip>();
 
     public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

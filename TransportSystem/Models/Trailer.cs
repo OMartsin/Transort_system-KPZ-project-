@@ -21,7 +21,7 @@ public partial class Trailer
 
     public string TrailerType { get; set; } = null!;
 
-    public virtual ICollection<Transportinsurance> Transportinsurances { get; set; } = new List<Transportinsurance>();
+    public virtual ICollection<TransportInsurance> Transportinsurances { get; set; } = new List<TransportInsurance>();
 
     public virtual ICollection<Trip> Trips { get; set; } = new List<Trip>();
 }

@@ -23,7 +23,7 @@ public partial class Truck
 
     public string? TruckRearTyperType { get; set; }
 
-    public virtual ICollection<Transportinsurance> Transportinsurances { get; set; } = new List<Transportinsurance>();
+    public virtual ICollection<TransportInsurance> TransportInsurances { get; set; } = new List<TransportInsurance>();
 
     public virtual ICollection<Trip> Trips { get; set; } = new List<Trip>();
 }

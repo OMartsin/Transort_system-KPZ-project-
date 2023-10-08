@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace WebApplication1.Models;
 
-public partial class Drivercontract
+public partial class DriverContract
 {
     public int ContractId { get; set; }
 

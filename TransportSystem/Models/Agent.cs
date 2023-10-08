@@ -13,9 +13,9 @@ public partial class Agent
 
     public string? AgentIpn { get; set; }
 
-    public virtual ICollection<Accounting> Accountings { get; set; } = new List<Accounting>();
+    public virtual ICollection<Accounting> Accounting { get; set; } = new List<Accounting>();
 
-    public virtual ICollection<Transportinsurance> Transportinsurances { get; set; } = new List<Transportinsurance>();
+    public virtual ICollection<TransportInsurance> TransportInsurances { get; set; } = new List<TransportInsurance>();
 
     public virtual ICollection<Trip> Trips { get; set; } = new List<Trip>();
 
