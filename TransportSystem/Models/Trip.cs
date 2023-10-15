@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WebApplication1.Models;
+namespace TransportSystem.Models;
 
 public partial class Trip
 {
     public int TripId { get; set; }
-
-    public int TripDriver1Id { get; set; }
-
-    public int TripDriver2Id { get; set; }
 
     public int TripTruckId { get; set; }
 
@@ -31,9 +27,7 @@ public partial class Trip
 
     public virtual Cargo TripCargo { get; set; } = null!;
 
-    public virtual Driver TripDriver1 { get; set; } = null!;
-
-    public virtual Driver TripDriver2 { get; set; } = null!;
+    public virtual ICollection<Driver> TripDrivers { get; set; } = null!;
 
     public virtual Trailer TripTrailer { get; set; } = null!;
 

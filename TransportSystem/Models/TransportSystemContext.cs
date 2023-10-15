@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace WebApplication1.Models;
+namespace TransportSystem.Models;
 
 public partial class TransportSystemContext : DbContext
 {
@@ -78,6 +78,8 @@ public partial class TransportSystemContext : DbContext
             entity.HasIndex(e => e.AgentEdrpou, "AgentEDRPOU_UNIQUE").IsUnique();
 
             entity.HasIndex(e => e.AgentName, "AgentName_UNIQUE").IsUnique();
+            
+            entity.HasIndex(e => e.AgentAccount, "AgentAccount_UNIQUE").IsUnique();
 
             entity.Property(e => e.AgentEdrpou)
                 .HasMaxLength(15)
@@ -85,6 +87,10 @@ public partial class TransportSystemContext : DbContext
             entity.Property(e => e.AgentIpn)
                 .HasMaxLength(15)
                 .HasColumnName("AgentIPN");
+            entity.Property(e => e.AgentAccount).HasMaxLength(30);
+            entity.Property(e => e.AgentAddress).HasMaxLength(45);
+            entity.Property(e => e.AgentEmail).HasMaxLength(45);
+            entity.Property(e => e.AgentPhone).HasMaxLength(20);
             entity.Property(e => e.AgentName).HasMaxLength(45);
         });
 
@@ -269,10 +275,6 @@ public partial class TransportSystemContext : DbContext
 
             entity.HasIndex(e => e.TripCargoId, "trip_cargo_id_idx");
 
-            entity.HasIndex(e => e.TripDriver2Id, "trip_driver2_id_idx");
-
-            entity.HasIndex(e => e.TripDriver1Id, "trip_driver_id_idx");
-
             entity.HasIndex(e => e.TripTrailerId, "trip_trailer_id_idx");
 
             entity.HasIndex(e => e.TripTruckId, "trip_truck_id_idx");
@@ -280,8 +282,6 @@ public partial class TransportSystemContext : DbContext
             entity.Property(e => e.TripId).HasColumnName("TripID");
             entity.Property(e => e.TripAgentId).HasColumnName("TripAgentID");
             entity.Property(e => e.TripCargoId).HasColumnName("TripCargoID");
-            entity.Property(e => e.TripDriver1Id).HasColumnName("TripDriver1ID");
-            entity.Property(e => e.TripDriver2Id).HasColumnName("TripDriver2ID");
             entity.Property(e => e.TripTrailerId).HasColumnName("TripTrailerID");
             entity.Property(e => e.TripTruckId).HasColumnName("TripTruckID");
 
@@ -295,15 +295,29 @@ public partial class TransportSystemContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("trip_cargo_id");
 
-            entity.HasOne(d => d.TripDriver1).WithMany(p => p.TripDriver)
-                .HasForeignKey(d => d.TripDriver1Id)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("trip_driver_id");
+            entity.HasMany(d => d.TripDrivers).WithMany(p => p.TripDriver)
+                .UsingEntity<Dictionary<string, object>>(
+                    "Drivertrip",
+                    r => r.HasOne<Driver>().WithMany()
+                        .HasForeignKey("DriverId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("trip_drivers_driver_id"),
+                    l => l.HasOne<Trip>().WithMany()
+                        .HasForeignKey("TripId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("trip_drivers_trip_id"),
+                    j =>
+                    {
+                        j.HasKey("TripId", "DriverId")
+                            .HasName("PRIMARY")
+                            .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0 });
+                        j.ToTable("trip_drivers");
+                        j.HasIndex(new[] { "TripId" }, "trip_drivers_trip_id_idx");
+                        j.HasIndex(new[] { "DriverId" }, "trip_drivers_driver_id_idx");
+                        j.IndexerProperty<int>("TripId").HasColumnName("TripID");
+                        j.IndexerProperty<int>("DriverId").HasColumnName("DriverID");
+                    });
 
-            entity.HasOne(d => d.TripDriver2).WithMany(p => p.TripDriver)
-                .HasForeignKey(d => d.TripDriver2Id)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("trip_driver2_id");
 
             entity.HasOne(d => d.TripTrailer).WithMany(p => p.Trips)
                 .HasForeignKey(d => d.TripTrailerId)
