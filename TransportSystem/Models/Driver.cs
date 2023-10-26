@@ -23,8 +23,6 @@ public partial class Driver
 
     public DateOnly DriverBirthday { get; set; }
 
-    public int? DriverContractId { get; set; }
-
     public virtual ICollection<DriverContract> DriverContracts { get; set; } = new List<DriverContract>();
 
     public virtual ICollection<DriverLicense> DriverLicenses { get; set; } = new List<DriverLicense>();

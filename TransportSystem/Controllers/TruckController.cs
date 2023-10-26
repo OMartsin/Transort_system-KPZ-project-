@@ -1,69 +1,47 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TransportSystem.Models;
+using TransportSystem.Services;
 
 namespace TransportSystem.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-[Authorize(Policy = "AdminOnly")]
 public class TruckController {
-    private TransportSystemContext _transportSystemContext;
+    private ITruckService _truckService;
 
-    public TruckController(TransportSystemContext transportSystemContext) {
-        _transportSystemContext = transportSystemContext;
+    public TruckController(ITruckService truckService) {
+        _truckService = truckService;
     }
 
+    [Authorize]
     [HttpGet("{id}", Name = "GetTruck")]
-
     public Truck GetTruck(int id)
     {
-        var truck = _transportSystemContext.Trucks.Find(id);
-        return truck;
+        return _truckService.GetTruck(id);
     }
     
+    [Authorize(Policy = "AdminOnly")]
     [HttpGet(Name = "GetTrucks")]
     public IEnumerable<Truck> GetTrucks() {
-        var trucks = _transportSystemContext.Trucks.ToList();
-        return trucks;
+        return _truckService.GetTrucks();
     }
 
+    [Authorize(Policy = "AdminOnly")]
     [HttpPost(Name = "AddTruck")]
-    public Truck AddTruck(string numberPlate, string fuelType, string vendor, 
-        string model, int weight, string frontTyresType, string rearTyresType) {
-        var truck = new Truck {
-            TruckNumberPlate = numberPlate,
-            TruckFuelType = fuelType,
-            TruckVendor = vendor,
-            TruckModel = model,
-            TruckWeight = weight,
-            TruckFrontTyresType = frontTyresType,
-            TruckRearTyperType = rearTyresType
-        };
-        _transportSystemContext.Trucks.Add(truck);
-        _transportSystemContext.SaveChanges();
-        return truck;
+    public Truck AddTruck([FromBody] Truck truck) {
+        return _truckService.AddTruck(truck);
     }
 
+    [Authorize(Policy = "AdminOnly")]
     [HttpDelete(Name = "DeleteTruck")]
     public void DeleteTruck(int id) {
-        var truck = _transportSystemContext.Trucks.Find(id);
-        _transportSystemContext.Trucks.Remove(truck);
-        _transportSystemContext.SaveChanges();
+        _truckService.DeleteTruck(id);
     }
     
+    [Authorize(Policy = "AdminOnly")]
     [HttpPut(Name = "UpdateTruck")]
-    public Truck UpdateTruck(int id, string numberPlate, string fuelType, string vendor, 
-        string model, int weight, string frontTyresType, string rearTyresType) {
-        var truck = _transportSystemContext.Trucks.Find(id);
-        truck.TruckNumberPlate = numberPlate;
-        truck.TruckFuelType = fuelType;
-        truck.TruckVendor = vendor;
-        truck.TruckModel = model;
-        truck.TruckWeight = weight;
-        truck.TruckFrontTyresType = frontTyresType;
-        truck.TruckRearTyperType = rearTyresType;
-        _transportSystemContext.SaveChanges();
-        return truck;
+    public Truck UpdateTruck([FromBody] Truck truck, int id) {
+        return _truckService.UpdateTruck(id, truck);
     }
 }

@@ -1,21 +1,34 @@
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using TransportSystem;
 using TransportSystem.Models;
 using TransportSystem.Services;
+using TransportSystem.Services.CargoService;
 using TransportSystem.Services.DriverService;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddNewtonsoftJson(options =>
+    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+);
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+});
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddDbContext<TransportSystemContext>();
+builder.Services.AddDbContext<TransportSystemContext>(options => {
+    options.UseLazyLoadingProxies(true);
+}); 
 builder.Services.AddSingleton<IUserTokenGenerator, UserTokenGenerator>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IRegistrationService, RegistrationService>();  
 builder.Services.AddScoped<IDriverService, DriverService>();
+builder.Services.AddScoped<ITruckService, TruckService>();
+builder.Services.AddScoped<ICargoService, CargoService>();
 builder.Services.AddSwaggerGen(c => {
     c.SwaggerDoc("v1", new() { Title = "TransportSystem", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
@@ -44,6 +57,7 @@ builder.Services.AddAuthorization(options =>
         options.AddPolicy("AdminOnly", policy => policy.RequireRole("administrator"));
         options.AddPolicy("AgentOnly", policy => policy.RequireRole("agent"));
         options.AddPolicy("DriverOnly", policy => policy.RequireRole("driver"));
+        options.AddPolicy("DriverAndAdmin", policy => policy.RequireRole("driver", "administrator"));
     });
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

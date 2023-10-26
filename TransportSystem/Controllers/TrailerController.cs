@@ -6,7 +6,6 @@ namespace TransportSystem.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-[Authorize]
 public class TrailerController {
     private TransportSystemContext _transportSystemContext;
     
@@ -15,6 +14,7 @@ public class TrailerController {
     }
     
     [HttpGet("{id}", Name = "GetTrailer")]
+    [Authorize]
     public Trailer GetTrailer(int id)
     {
         var trailer = _transportSystemContext.Trailers.Find(id);
@@ -22,12 +22,14 @@ public class TrailerController {
     }
     
     [HttpGet(Name = "GetTrailers")]
+    [Authorize(Policy = "AdminOnly")]
     public IEnumerable<Trailer> GetTrailers() {
         var trailers = _transportSystemContext.Trailers.ToList();
         return trailers;
     }   
     
     [HttpPost(Name = "AddTrailer")]
+    [Authorize(Policy = "AdminOnly")]
     public Trailer AddTrailer(string numberPlate, string vendor, string model, 
         int weight, string tyresType, string trailerType) { 
         var trailer = new Trailer {
@@ -44,6 +46,7 @@ public class TrailerController {
     }
     
     [HttpDelete(Name = "DeleteTrailer")]
+    [Authorize(Policy = "AdminOnly")]
     public void DeleteTrailer(int id) {
         var trailer = _transportSystemContext.Trailers.Find(id);
         _transportSystemContext.Trailers.Remove(trailer);
@@ -51,6 +54,7 @@ public class TrailerController {
     }   
     
     [HttpPut(Name = "UpdateTrailer")]
+    [Authorize(Policy = "AdminOnly")]
     public Trailer UpdateTrailer(int id, string numberPlate, string vendor, string model, 
         int weight, string tyresType, string trailerType) {
         var trailer = _transportSystemContext.Trailers.Find(id);

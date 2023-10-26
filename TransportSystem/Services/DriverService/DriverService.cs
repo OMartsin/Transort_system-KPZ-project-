@@ -1,4 +1,7 @@
-﻿using TransportSystem.Models;
+﻿using System.Diagnostics;
+using Microsoft.EntityFrameworkCore;
+using TransportSystem.DTO;
+using TransportSystem.Models;
 
 namespace TransportSystem.Services.DriverService; 
 
@@ -12,6 +15,15 @@ public class DriverService : IDriverService {
     public IEnumerable<Driver> GetDrivers() {
         var drivers = _transportSystemContext.Drivers.ToList();
         return drivers;
+    }
+    
+    public IEnumerable<DriverDto> GetDriversDto() {
+        var drivers = _transportSystemContext.Drivers.ToList();
+        var driversDto = new List<DriverDto>();
+        foreach (var driver in drivers) {
+            driversDto.Add(new DriverDto(driver));
+        }
+        return driversDto;
     }
 
     public Driver GetDriver(int id) {
@@ -35,6 +47,30 @@ public class DriverService : IDriverService {
         _transportSystemContext.SaveChanges();
         return driver;
     }
+    
+    public DriverLicense AddDriverLicense(int driverId, DriverLicense driverLicense)
+    {
+        var driver = _transportSystemContext.Drivers.Find(driverId);
+        if (driver == null) throw new Exception("Driver not found");
+
+        driverLicense.DriverId = driverId;
+        _transportSystemContext.DriverLicenses.Add(driverLicense);
+        _transportSystemContext.SaveChanges();
+        return driverLicense;
+    }
+    
+    public DriverContract AddDriverContract(int driverId, DriverContract driverContract)
+    {
+        var driver = _transportSystemContext.Drivers.Find(driverId);
+        if (driver == null) throw new Exception("Driver not found");
+
+        driverContract.ContractDriverId = driverId;
+        _transportSystemContext.DriverContracts.Add(driverContract);
+        _transportSystemContext.SaveChanges();
+        return driverContract;
+    }
+
+
 
     public Driver UpdateDriver(int id, Driver driver) {
         _transportSystemContext.Drivers.Update(driver);
@@ -42,10 +78,58 @@ public class DriverService : IDriverService {
         return driver;
     }
 
+    public Driver UpdateDriverLicense(int driverId, DriverLicense driverLicense) {
+        var existingLicense = _transportSystemContext.DriverLicenses
+            .SingleOrDefault(dl => dl.DriverId == driverId && dl.LicenseId == driverLicense.LicenseId);
+        if (existingLicense == null) throw new Exception("Driver license not found");
+
+        existingLicense.LicenseNumber = driverLicense.LicenseNumber;
+        existingLicense.ExpirationDate = driverLicense.ExpirationDate;
+
+        _transportSystemContext.SaveChanges();
+        if (existingLicense.Driver == null) {
+            throw new Exception("Driver license already assigned to driver");
+        } 
+        return existingLicense.Driver;
+    }
+    
+    public Driver UpdateDriverContract(int driverId, DriverContract driverContract)
+    {
+        var existingContract = _transportSystemContext.DriverContracts
+            .SingleOrDefault(dc => dc.ContractDriverId == driverId && dc.ContractId == driverContract.ContractId);
+        if (existingContract == null) throw new Exception("Driver contract not found");
+
+        existingContract.ContractNumber = driverContract.ContractNumber;
+        existingContract.ContractIssueDate = driverContract.ContractIssueDate;
+        existingContract.ContractExpiryDate = driverContract.ContractExpiryDate;
+
+        _transportSystemContext.SaveChanges();
+        return existingContract.ContractDriver;
+    }
+
+
     public void DeleteDriver(int id) {
         var driver = _transportSystemContext.Drivers.Find(id);
         if(driver is null) throw new Exception("Driver not found");
         _transportSystemContext.Drivers.Remove(driver);
+        _transportSystemContext.SaveChanges();
+    }
+    
+    public void DeleteDriverLicense(int driverId, int licenseId)
+    {
+        var driverLicense = _transportSystemContext.DriverLicenses
+            .SingleOrDefault(dl => dl.DriverId == driverId && dl.LicenseId == licenseId);
+        if (driverLicense == null) throw new Exception("Driver license not found");
+        _transportSystemContext.DriverLicenses.Remove(driverLicense);
+        _transportSystemContext.SaveChanges();
+    }
+    
+    public void DeleteDriverContract(int driverId, int contractId)
+    {
+        var driverContract = _transportSystemContext.DriverContracts
+            .SingleOrDefault(dc => dc.ContractDriverId == driverId && dc.ContractId == contractId);
+        if (driverContract == null) throw new Exception("Driver contract not found");
+        _transportSystemContext.DriverContracts.Remove(driverContract);
         _transportSystemContext.SaveChanges();
     }
 }
