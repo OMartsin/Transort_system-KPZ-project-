@@ -20,12 +20,14 @@ public partial class Agent
     public string? AgentEmail { get; set; }
 
     public string? AgentIpn { get; set; }
+    
+    public int UserId { get; set; }
+    
+    public virtual User User { get; set; } = null!;
 
     public virtual ICollection<Accounting> Accounting { get; set; } = new List<Accounting>();
 
     public virtual ICollection<TransportInsurance> TransportInsurances { get; set; } = new List<TransportInsurance>();
 
     public virtual ICollection<Trip> Trips { get; set; } = new List<Trip>();
-
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

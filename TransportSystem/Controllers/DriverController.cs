@@ -4,132 +4,188 @@ using TransportSystem.DTO;
 using TransportSystem.Models;
 using TransportSystem.Services.DriverService;
 
-namespace TransportSystem.Controllers; 
-
-[ApiController]
-[Route("[controller]/")]
-public class DriverController {
-    
-    private IDriverService _driverService;
-
-    public DriverController(IDriverService driverService) {
-        _driverService = driverService;
-    }
-    
-    [Authorize]
-    [HttpGet("{id}", Name = "GetDriver")]
-    public Driver GetDriver(int id) {
-        return _driverService.GetDriver(id);
-    }
-    
-    [Authorize(Policy = "AdminOnly")]
-    [HttpGet(Name = "GetDrivers")]
-    public IEnumerable<Driver> GetDrivers() {
-        return _driverService.GetDrivers();
-    }
-
-    [Authorize(Policy = "AdminOnly")]
-    [HttpPost(Name = "AddDriver")]
-    public Driver AddDriver([FromBody] Driver driver) {
-        return _driverService.AddDriver(driver);
-    }
-
-    [Authorize(Policy = "AdminOnly")]
-    [HttpPut(Name = "UpdateDriver")]
-    public Driver UpdateDriver(int id, [FromBody] Driver driver) {
-        return _driverService.UpdateDriver(id, driver);
-    }
-    
-    [Authorize(Policy = "AdminOnly")]
-    [HttpPost("{driverId}/licenses", Name = "AddDriverLicense")]
-    public ActionResult<DriverLicense> AddDriverLicense(int driverId, [FromBody] DriverLicense driverLicense)
+namespace TransportSystem.Controllers
+{
+    [ApiController]
+    [Route("[controller]/")]
+    public class DriverController : ControllerBase
     {
-        try
+        private readonly IDriverService _driverService;
+
+        public DriverController(IDriverService driverService)
         {
-            var addedLicense = _driverService.AddDriverLicense(driverId, driverLicense);
-            return new OkObjectResult(addedLicense);
+            _driverService = driverService;
         }
-        catch (Exception ex)
+
+        [Authorize]
+        [HttpGet("{id}", Name = "GetDriver")]
+        public ActionResult<Driver> GetDriver(int id)
         {
-            return new BadRequestObjectResult(new { message = ex.Message });
-        }
-    }
-    
-    [Authorize(Policy = "AdminOnly")]
-    [HttpPut("{driverId}/licenses/{licenseId}", Name = "UpdateDriverLicense")]
-    public ActionResult<Driver> UpdateDriverLicense(int driverId,int licenseId,
-        [FromBody] DriverLicense driverLicense)
-    {
-        try 
-        {
-            driverLicense.DriverId = driverId;
-            driverLicense.LicenseId = licenseId;
-            var updatedLicense = _driverService.UpdateDriverLicense(driverId, driverLicense);
-            return new OkObjectResult(updatedLicense);
-        }
-        catch (Exception ex)
-        {
-            return new BadRequestObjectResult(new { message = ex.Message });
-        }
-    }
-    
-    [Authorize(Policy = "AdminOnly")]
-    [HttpPost("{driverId}/contracts", Name = "AddDriverContract")]
-    public ActionResult<DriverContract> AddDriverContract(int driverId,
-        [FromBody] DriverContractDTO driverContractDto)
-    {
-        try
-        {
-            var driver = _driverService.GetDriver(driverId);
-            
-            var driverContract = new DriverContract
+            try
             {
-                ContractNumber = driverContractDto.ContractNumber,
-                ContractIssueDate = driverContractDto.ContractIssueDate,
-                ContractExpiryDate = driverContractDto.ContractExpiryDate,
-                ContractDriver = driver
-            };
+                var driver = _driverService.GetDriver(id);
+                return Ok(driver);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
 
-            var addedContract = _driverService.AddDriverContract(driverId, driverContract);
-            return new OkObjectResult(addedContract);
-        }
-        catch (Exception ex)
+        [Authorize(Policy = "AdminOnly")]
+        [HttpGet(Name = "GetDrivers")]
+        public ActionResult<IEnumerable<Driver>> GetDrivers()
         {
-            return new BadRequestObjectResult(new { message = ex.Message });
+            try
+            {
+                var drivers = _driverService.GetDrivers();
+                return Ok(drivers);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
-    }
 
-    [Authorize(Policy = "AdminOnly")]
-    [HttpPut("{driverId}/contracts/{contractId}", Name = "UpdateDriverContract")]
-    public ActionResult<DriverContract> UpdateDriverContract(int driverId, [FromBody] DriverContract driverContract)
-    {
-        try
+        [Authorize(Policy = "AdminOnly")]
+        [HttpPost(Name = "AddDriver")]
+        public ActionResult<Driver> AddDriver([FromBody] Driver driver)
         {
-            var updatedContract = _driverService.UpdateDriverContract(driverId, driverContract);
-            return new OkObjectResult(updatedContract);
+            try
+            {
+                var addedDriver = _driverService.AddDriver(driver);
+                return Ok(addedDriver);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
-        catch (Exception ex)
-        {
-            return new BadRequestObjectResult(new { message = ex.Message });
-        }
-    }
-    
-    [Authorize(Policy = "AdminOnly")]
-    [HttpDelete("{id}")]
-    public void DeleteDriver(int id) {
-        _driverService.DeleteDriver(id);
-    }
 
-    [Authorize(Policy = "AdminOnly")]
-    [HttpDelete("{driverId}/licenses/{licenseId}")]
-    public void DeleteDriverLicense(int driverId, int licenseId) {
-        _driverService.DeleteDriverLicense(driverId, licenseId);
+        [Authorize(Policy = "AdminOnly")]
+        [HttpPut("{id}", Name = "UpdateDriver")]
+        public ActionResult<Driver> UpdateDriver(int id, [FromBody] Driver driver)
+        {
+            try
+            {
+                var updatedDriver = _driverService.UpdateDriver(driver);
+                return Ok(updatedDriver);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [Authorize(Policy = "AdminOnly")]
+        [HttpPost("{driverId}/licenses", Name = "AddDriverLicense")]
+        public ActionResult<DriverLicense> AddDriverLicense(int driverId, 
+            [FromBody] DriverLicense driverLicense)
+        {
+            try
+            {
+                var addedLicense = _driverService.AddDriverLicense(driverId, driverLicense);
+                return Ok(addedLicense);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [Authorize(Policy = "AdminOnly")]
+        [HttpPut("{driverId}/licenses/{licenseId}", Name = "UpdateDriverLicense")]
+        public ActionResult<DriverLicense> UpdateDriverLicense(int driverId, int licenseId, 
+            [FromBody] DriverLicense driverLicense)
+        {
+            try
+            {
+                driverLicense.LicenseId = licenseId;
+                var updatedLicense = _driverService.UpdateDriverLicense(driverId, driverLicense);
+                return Ok(updatedLicense);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [Authorize(Policy = "AdminOnly")]
+        [HttpPost("{driverId}/contracts", Name = "AddDriverContract")]
+        public ActionResult<DriverContract> AddDriverContract(int driverId, 
+            [FromBody] DriverContractDTO driverContractDto)
+        {
+            try
+            {
+                var addedContract = _driverService.AddDriverContract(driverId, driverContractDto);
+                return Ok(addedContract);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [Authorize(Policy = "AdminOnly")]
+        [HttpPut("{driverId}/contracts/{contractId}", Name = "UpdateDriverContract")]
+        public ActionResult<DriverContract> UpdateDriverContract(int driverId, int contractId, 
+            [FromBody] DriverContract driverContract)
+        {
+            try
+            {
+                driverContract.ContractId = contractId;
+                var updatedContract = _driverService.UpdateDriverContract(driverId, driverContract);
+                return Ok(updatedContract);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [Authorize(Policy = "AdminOnly")]
+        [HttpDelete("{id}")]
+        public IActionResult DeleteDriver(int id)
+        {
+            try
+            {
+                _driverService.DeleteDriver(id);
+                return Ok(new { message = "Driver deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [Authorize(Policy = "AdminOnly")]
+        [HttpDelete("{driverId}/licenses/{licenseId}")]
+        public IActionResult DeleteDriverLicense(int driverId, int licenseId)
+        {
+            try
+            {
+                _driverService.DeleteDriverLicense(driverId, licenseId);
+                return Ok(new { message = "Driver license deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [Authorize(Policy = "AdminOnly")]
+        [HttpDelete("{driverId}/contracts/{contractId}")]
+        public IActionResult DeleteDriverContract(int driverId, int contractId)
+        {
+            try
+            {
+                _driverService.DeleteDriverContract(driverId, contractId);
+                return Ok(new { message = "Driver contract deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
-    
-    [Authorize(Policy = "AdminOnly")]
-    [HttpDelete("{driverId}/contracts/{contractId}")]
-    public void DeleteDriverContract(int driverId, int contractId) {
-        _driverService.DeleteDriverContract(driverId, contractId);
-    }
-    
 }

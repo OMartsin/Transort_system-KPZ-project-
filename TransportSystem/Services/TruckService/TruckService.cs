@@ -1,48 +1,70 @@
-﻿using TransportSystem.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using TransportSystem.DTO;
+using TransportSystem.Models;
 
-namespace TransportSystem.Services; 
+namespace TransportSystem.Services
+{
+    public class TruckService : ITruckService
+    {
+        private readonly TransportSystemContext _context;
+        private readonly IMapper _mapper;
 
-public class TruckService: ITruckService {
-    private TransportSystemContext _context;
-    
-    public TruckService(TransportSystemContext context) {
-        _context = context;
-    }
-    
-    public IEnumerable<Truck> GetTrucks() {
-        return _context.Trucks;
-    }
-    
-    public Truck GetTruck(int id) {
-        return _context.Trucks.Find(id) ?? throw new Exception("Truck not found");
-    }
-    
-    public Truck AddTruck(Truck truck) {
-        _context.Trucks.Add(truck);
-        _context.SaveChanges();
-        return truck;
-    }
-    
-    public void DeleteTruck(int id) {
-        var truck = _context.Trucks.Find(id);
-        if(truck is null) throw new Exception("Truck not found");
-        _context.Trucks.Remove(truck);
-        _context.SaveChanges();
-    }
+        public TruckService(TransportSystemContext context, IMapper mapper)
+        {
+            _context = context;
+            _mapper = mapper;
+        }
 
-    public Truck UpdateTruck(int id, Truck truck) {
-        var editTruck = _context.Trucks.Find(id);
-        if(editTruck is null) throw new Exception("Truck not found" );
-        editTruck.TruckNumberPlate = truck.TruckNumberPlate;
-        editTruck.TruckFuelType = truck.TruckFuelType;
-        editTruck.TruckVendor = truck.TruckVendor;
-        editTruck.TruckModel = truck.TruckModel;
-        editTruck.TruckEcoStandartEuro = truck.TruckEcoStandartEuro;
-        editTruck.TruckWeight = truck.TruckWeight;
-        editTruck.TruckFrontTyresType = truck.TruckFrontTyresType;
-        editTruck.TruckRearTyperType = truck.TruckRearTyperType;
-        _context.Trucks.Update(editTruck);
-        _context.SaveChanges();
-        return truck;
+        public IEnumerable<TruckDto> GetTrucks()
+        {
+            return _mapper.Map<IEnumerable<TruckDto>>(_context.Trucks.ToList());
+        }
+
+        public TruckDto GetTruck(int id)
+        {
+            var truck = _context.Trucks.Find(id);
+            if (truck == null)
+            {
+                throw new Exception("Truck not found");
+            }
+            return _mapper.Map<TruckDto>(truck);
+        }
+
+        public TruckDto AddTruck(TruckDto truck)
+        {
+            var truckToAdd = _mapper.Map<Truck>(truck);
+            _context.Trucks.Add(truckToAdd);
+            _context.SaveChanges();
+            return _mapper.Map<TruckDto>(truckToAdd);
+        }
+
+        public void DeleteTruck(int id)
+        {
+            var truck = _context.Trucks.Find(id);
+            if (truck == null)
+            {
+                throw new Exception("Truck not found");
+            }
+            _context.Trucks.Remove(truck); 
+            _context.SaveChanges();
+        }
+
+        public TruckDto UpdateTruck(TruckDto truck)
+        {
+            var existingTruck = _context.Trucks.Find(truck.TruckId);
+            if (existingTruck == null)
+            {
+                throw new Exception("Truck not found");
+            }
+            
+            _context.Entry(existingTruck).CurrentValues.SetValues(truck);
+
+            _context.SaveChanges();
+            return truck;
+        }
     }
 }

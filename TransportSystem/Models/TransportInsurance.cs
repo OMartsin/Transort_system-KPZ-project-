@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace TransportSystem.Models;
+﻿namespace TransportSystem.Models;
 
 public partial class TransportInsurance
 {

@@ -6,8 +6,10 @@ using Microsoft.OpenApi.Models;
 using TransportSystem;
 using TransportSystem.Models;
 using TransportSystem.Services;
-using TransportSystem.Services.CargoService;
+using TransportSystem.Services.AgentService;
 using TransportSystem.Services.DriverService;
+using TransportSystem.Services.TrailerService;
+using TransportSystem.Services.TripService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,10 +27,13 @@ builder.Services.AddDbContext<TransportSystemContext>(options => {
 }); 
 builder.Services.AddSingleton<IUserTokenGenerator, UserTokenGenerator>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
-builder.Services.AddScoped<IRegistrationService, RegistrationService>();  
 builder.Services.AddScoped<IDriverService, DriverService>();
 builder.Services.AddScoped<ITruckService, TruckService>();
-builder.Services.AddScoped<ICargoService, CargoService>();
+builder.Services.AddScoped<ITransportInsuranceService, TransportInsuranceService>();
+builder.Services.AddScoped<ITrailerService, TrailerService>();
+builder.Services.AddScoped<IAgentService, AgentService>();
+builder.Services.AddScoped<ITripService, TripService>();
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddSwaggerGen(c => {
     c.SwaggerDoc("v1", new() { Title = "TransportSystem", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {

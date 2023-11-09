@@ -1,12 +1,16 @@
-﻿using TransportSystem.Models;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using TransportSystem.DTO;
+using TransportSystem.Models;
 
-namespace TransportSystem.Services; 
-
-public interface ITruckService {
-    public IEnumerable<Truck> GetTrucks();
-    public Truck GetTruck(int id);
-    public Truck AddTruck(Truck truck);
-    
-    public void DeleteTruck(int id);
-    public Truck UpdateTruck(int id, Truck truck);
+namespace TransportSystem.Services
+{
+    public interface ITruckService
+    {
+        IEnumerable<TruckDto> GetTrucks();
+        TruckDto GetTruck(int id);
+        TruckDto AddTruck(TruckDto truck);
+        void DeleteTruck(int id);
+        TruckDto UpdateTruck(TruckDto truck);
+    }
 }

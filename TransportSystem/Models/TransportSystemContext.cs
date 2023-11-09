@@ -20,8 +20,6 @@ public partial class TransportSystemContext : DbContext
 
     public virtual DbSet<Agent> Agents { get; set; }
 
-    public virtual DbSet<Cargo> Cargos { get; set; }
-
     public virtual DbSet<DeliveryLog> DeliveryLog { get; set; }
 
     public virtual DbSet<Driver> Drivers { get; set; }
@@ -92,18 +90,16 @@ public partial class TransportSystemContext : DbContext
             entity.Property(e => e.AgentEmail).HasMaxLength(45);
             entity.Property(e => e.AgentPhone).HasMaxLength(20);
             entity.Property(e => e.AgentName).HasMaxLength(45);
+            
+            // Foreign key to User
+            entity.HasOne(d => d.User)
+                .WithOne()
+                .HasForeignKey<Agent>(d => d.UserId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("agent_user_id");
+            
         });
-
-        modelBuilder.Entity<Cargo>(entity =>
-        {
-            entity.HasKey(e => e.CargoId).HasName("PRIMARY");
-
-            entity.ToTable("cargos");
-
-            entity.Property(e => e.CargoId).HasColumnName("CargoID");
-            entity.Property(e => e.CargoName).HasMaxLength(45);
-        });
-
+        
         modelBuilder.Entity<DeliveryLog>(entity =>
         {
             entity.HasKey(e => e.DeliveryLogId).HasName("PRIMARY");
@@ -143,6 +139,22 @@ public partial class TransportSystemContext : DbContext
             entity.Property(e => e.DriverPhoneNumber).HasMaxLength(20);
             entity.Property(e => e.DriverSurname).HasMaxLength(30);
             entity.Property(e => e.DriversPassportNumber).HasMaxLength(15);
+            
+            entity.HasMany(d => d.DriverLicenses)
+                .WithOne(dl => dl.Driver)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasMany(d => d.DriverContracts)
+                .WithOne(dc => dc.ContractDriver)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            // Foreign key to User
+            entity.HasOne(d => d.User)
+                .WithOne()
+                .HasForeignKey<Driver>(d => d.UserId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("driver_user_id");
+            
         });
 
         modelBuilder.Entity<DriverContract>(entity =>
@@ -232,6 +244,10 @@ public partial class TransportSystemContext : DbContext
             entity.Property(e => e.TrailerType).HasMaxLength(45);
             entity.Property(e => e.TrailerTyresType).HasMaxLength(128);
             entity.Property(e => e.TrailerVendor).HasMaxLength(30);
+            
+            entity.HasMany( t => t.Transportinsurances)
+                .WithOne(ti => ti.InsuranceTrailer)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<TransportInsurance>(entity =>
@@ -273,27 +289,21 @@ public partial class TransportSystemContext : DbContext
 
             entity.HasIndex(e => e.TripAgentId, "trip_agent_id_idx");
 
-            entity.HasIndex(e => e.TripCargoId, "trip_cargo_id_idx");
-
             entity.HasIndex(e => e.TripTrailerId, "trip_trailer_id_idx");
 
             entity.HasIndex(e => e.TripTruckId, "trip_truck_id_idx");
 
             entity.Property(e => e.TripId).HasColumnName("TripID");
             entity.Property(e => e.TripAgentId).HasColumnName("TripAgentID");
-            entity.Property(e => e.TripCargoId).HasColumnName("TripCargoID");
             entity.Property(e => e.TripTrailerId).HasColumnName("TripTrailerID");
             entity.Property(e => e.TripTruckId).HasColumnName("TripTruckID");
+            entity.Property(e => e.TripName).HasMaxLength(100);
+            entity.Property(e => e.TripCargoName).HasMaxLength(100);
 
             entity.HasOne(d => d.TripAgent).WithMany(p => p.Trips)
                 .HasForeignKey(d => d.TripAgentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("trip_agent_id");
-
-            entity.HasOne(d => d.TripCargo).WithMany(p => p.Trips)
-                .HasForeignKey(d => d.TripCargoId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("trip_cargo_id");
 
             entity.HasMany(d => d.TripDrivers).WithMany(p => p.TripDriver)
                 .UsingEntity<Dictionary<string, object>>(
@@ -344,6 +354,11 @@ public partial class TransportSystemContext : DbContext
             entity.Property(e => e.TruckNumberPlate).HasMaxLength(10);
             entity.Property(e => e.TruckRearTyperType).HasMaxLength(128);
             entity.Property(e => e.TruckVendor).HasMaxLength(20);
+            
+            entity.HasMany( t => t.TransportInsurances)
+                .WithOne(ti => ti.InsuranceTruck)
+                .OnDelete(DeleteBehavior.Cascade);
+
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -354,26 +369,23 @@ public partial class TransportSystemContext : DbContext
 
             entity.HasIndex(e => e.Username, "Username_UNIQUE").IsUnique();
 
-            entity.HasIndex(e => e.AgentId, "user_agent_id");
-
-            entity.HasIndex(e => e.DriverId, "user_driver_id");
-
             entity.Property(e => e.UserId).HasColumnName("UserID");
-            entity.Property(e => e.AgentId).HasColumnName("AgentID");
-            entity.Property(e => e.DriverId).HasColumnName("DriverID");
             entity.Property(e => e.Password).HasMaxLength(255);
             entity.Property(e => e.Role).HasColumnType("enum('agent','driver','administrator')");
             entity.Property(e => e.Username).HasMaxLength(50);
+            
+            // Navigation properties (reverse navigation)
+            entity.HasOne(d => d.Agent)
+                .WithOne(p => p.User)
+                .HasForeignKey<Agent>(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("agent_user_id");
 
-            entity.HasOne(d => d.Agent).WithMany(p => p.Users)
-                .HasForeignKey(d => d.AgentId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("user_agent_id");
-
-            entity.HasOne(d => d.Driver).WithMany(p => p.Users)
-                .HasForeignKey(d => d.DriverId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("user_driver_id");
+            entity.HasOne(d => d.Driver)
+                .WithOne(p => p.User)
+                .HasForeignKey<Driver>(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("driver_user_id");
         });
 
         OnModelCreatingPartial(modelBuilder);

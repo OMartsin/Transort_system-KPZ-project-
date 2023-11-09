@@ -22,12 +22,14 @@ public partial class Driver
     public string DriverIndividualTaxNumber { get; set; } = null!;
 
     public DateOnly DriverBirthday { get; set; }
+    
+    public int UserId { get; set; }
 
     public virtual ICollection<DriverContract> DriverContracts { get; set; } = new List<DriverContract>();
 
     public virtual ICollection<DriverLicense> DriverLicenses { get; set; } = new List<DriverLicense>();
 
     public virtual ICollection<Trip> TripDriver { get; set; } = new List<Trip>();
-
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
+    
+    public virtual User User { get; set; } = null!;
 }

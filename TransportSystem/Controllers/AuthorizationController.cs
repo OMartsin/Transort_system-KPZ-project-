@@ -12,22 +12,20 @@ public class AuthorizationController
 {
     private IConfiguration _config;
     private readonly IAuthenticationService _authenticationService;
-    private readonly IRegistrationService _registrationService;
 
-    public AuthorizationController(IConfiguration config, IRegistrationService registrationService, 
+    public AuthorizationController(IConfiguration config,
         IAuthenticationService authenticationService)
     {
         _config = config;
         _authenticationService = authenticationService;
-        _registrationService = registrationService;
     }
     [AllowAnonymous]
     [HttpPost]
     [Route("login")]
-    public async Task<IActionResult> Login(string username, string password) {
+    public IActionResult Login(string username, string password) {
         string token;
         try {
-            token = await _authenticationService.AuthenticateUserAsync(username, password);
+            token = _authenticationService.AuthenticateUser(username, password);
         }
         catch (AuthenticationException e) {
             return new UnauthorizedObjectResult(new {message = e.Message});
@@ -36,21 +34,5 @@ public class AuthorizationController
             return new OkObjectResult(new { token = token });
         }
         return new UnauthorizedResult();
-    }
-    
-    [AllowAnonymous]
-    [HttpPost]
-    [Route("register")]
-    public async Task<IActionResult> Register(string username, string password, string companyName, 
-        string edrpou, string? ipn, string companyAddress, string? companyPhone, string account) {
-        string token;
-        try {
-            token = await _registrationService.RegisterAgentAsync(username, password, companyName, edrpou, 
-                ipn, companyAddress, companyPhone, account);
-        }
-        catch(AuthenticationException exception) {
-            return new BadRequestObjectResult(new {message = exception.Message});
-        }
-        return new OkObjectResult(new {token = token});
     }
 }

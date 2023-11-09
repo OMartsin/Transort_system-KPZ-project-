@@ -1,70 +1,117 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TransportSystem.DTO;
 using TransportSystem.Models;
+using TransportSystem.Services;
+using TransportSystem.Services.TrailerService;
 
 namespace TransportSystem.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class TrailerController {
-    private TransportSystemContext _transportSystemContext;
+[Authorize(Policy = "AdminOnly")]
+public class TrailerController : ControllerBase {
+    private readonly ITrailerService _trailerService;
+    private readonly ITransportInsuranceService _transportInsuranceService;
     
-    public TrailerController(TransportSystemContext transportSystemContext) {
-        _transportSystemContext = transportSystemContext;
+    public TrailerController(ITrailerService trailerService, 
+        ITransportInsuranceService transportInsuranceService) {
+        _trailerService = trailerService;
+        _transportInsuranceService = transportInsuranceService;
     }
-    
+
     [HttpGet("{id}", Name = "GetTrailer")]
-    [Authorize]
-    public Trailer GetTrailer(int id)
-    {
-        var trailer = _transportSystemContext.Trailers.Find(id);
-        return trailer;
+    public ActionResult<TrailerDto> GetTrailer(int id) {
+        try {
+            var trailer = _trailerService.GetTrailerById(id);
+            return Ok(trailer);
+        }
+        catch (Exception e) {
+            return BadRequest(new {message = e.Message});
+        }
     }
     
     [HttpGet(Name = "GetTrailers")]
-    [Authorize(Policy = "AdminOnly")]
-    public IEnumerable<Trailer> GetTrailers() {
-        var trailers = _transportSystemContext.Trailers.ToList();
-        return trailers;
-    }   
+    public ActionResult<IEnumerable<TrailerDto>> GetTrailers() {
+        try {
+            var trailers = _trailerService.GetTrailers();
+            return Ok(trailers);
+        }
+        catch (Exception e) {
+            return BadRequest(new { message = e.Message });
+        }
+    }
     
     [HttpPost(Name = "AddTrailer")]
-    [Authorize(Policy = "AdminOnly")]
-    public Trailer AddTrailer(string numberPlate, string vendor, string model, 
-        int weight, string tyresType, string trailerType) { 
-        var trailer = new Trailer {
-            TrailerNumberPlate = numberPlate,
-            TrailerVendor = vendor,
-            TrailerModel = model,
-            TrailerWeight = weight,
-            TrailerTyresType = tyresType,
-            TrailerType = trailerType
-        };
-        _transportSystemContext.Trailers.Add(trailer);
-        _transportSystemContext.SaveChanges();
-        return trailer;
+    public ActionResult<TrailerDto> AddTrailer([FromBody] TrailerDto trailer) {
+        try {
+            var addedTrailer = _trailerService.AddTrailer(trailer);
+            return Ok(addedTrailer);
+        }
+        catch (Exception e) {
+            return BadRequest(new { message = e.Message });
+        }
     }
     
     [HttpDelete(Name = "DeleteTrailer")]
-    [Authorize(Policy = "AdminOnly")]
-    public void DeleteTrailer(int id) {
-        var trailer = _transportSystemContext.Trailers.Find(id);
-        _transportSystemContext.Trailers.Remove(trailer);
-        _transportSystemContext.SaveChanges();
-    }   
+    public ActionResult DeleteTrailer(int id) {
+        try { 
+            _trailerService.DeleteTrailer(id);
+            return Ok();
+        }
+        catch (Exception e) {
+            return BadRequest(new { message = e.Message });
+        }
+    }
     
     [HttpPut(Name = "UpdateTrailer")]
-    [Authorize(Policy = "AdminOnly")]
-    public Trailer UpdateTrailer(int id, string numberPlate, string vendor, string model, 
-        int weight, string tyresType, string trailerType) {
-        var trailer = _transportSystemContext.Trailers.Find(id);
-        trailer.TrailerNumberPlate = numberPlate;
-        trailer.TrailerVendor = vendor;
-        trailer.TrailerModel = model;
-        trailer.TrailerWeight = weight;
-        trailer.TrailerTyresType = tyresType;
-        trailer.TrailerType = trailerType;
-        _transportSystemContext.SaveChanges();
-        return trailer;
+    public ActionResult UpdateTrailer([FromBody] TrailerDto trailer) {
+        try { 
+            _trailerService.UpdateTrailer(trailer);
+            return Ok();
+        }
+        catch (Exception e) {
+            return BadRequest(new { message = e.Message });
+        }
     }
+    
+    [HttpGet("trailers/insurances", Name = "GetTransportInsurances")]
+    public ActionResult<IEnumerable<TransportInsuranceDto>> GetTransportInsurances(int trailerId) {
+        try {
+            var transportInsurances = 
+                _transportInsuranceService.GetTransportInsurancesByTrailerId(trailerId);
+            return Ok(transportInsurances);
+        }
+        catch (Exception e) {
+            return BadRequest(new { message = e.Message });
+        }
+    }
+
+    [HttpPost("trailers/insurances", Name = "AddTransportInsurance")]
+    public ActionResult<TransportInsuranceDto> AddTrailerTransportInsurance(
+        [FromBody] TransportInsuranceDto transportInsuranceDto) {
+        try {
+            var addedTransportInsurance = _transportInsuranceService.AddTransportInsurance(
+                transportInsuranceDto);
+            return Ok(addedTransportInsurance);
+        }
+        catch (Exception e) {
+            return BadRequest(new { message = e.Message });
+        }
+    }
+
+    [HttpPut("trailers/insurances", Name = "UpdateTransportInsurance")]
+    public ActionResult<TransportInsurance> UpdateTrailerTransportInsurance(
+        [FromBody] TransportInsuranceDto transportInsuranceDto) {
+        try {
+            var updatedTransportInsurance = _transportInsuranceService.UpdateTransportInsurance(
+                transportInsuranceDto);
+            return Ok(updatedTransportInsurance);
+        }
+        catch (Exception e) {
+            return BadRequest(new { message = e.Message });
+        }
+    }
+    
+    
 }

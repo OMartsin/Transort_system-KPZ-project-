@@ -6,12 +6,14 @@ namespace TransportSystem.Models;
 public partial class Trip
 {
     public int TripId { get; set; }
+    
+    public string TripName { get; set; } = null!;
 
     public int TripTruckId { get; set; }
 
     public int TripTrailerId { get; set; }
 
-    public int TripCargoId { get; set; }
+    public int TripCargoName { get; set; }
 
     public int TripAgentId { get; set; }
 
@@ -24,8 +26,6 @@ public partial class Trip
     public virtual ICollection<DeliveryLog> DeliveryLog { get; set; } = new List<DeliveryLog>();
 
     public virtual Agent TripAgent { get; set; } = null!;
-
-    public virtual Cargo TripCargo { get; set; } = null!;
 
     public virtual ICollection<Driver> TripDrivers { get; set; } = null!;
 

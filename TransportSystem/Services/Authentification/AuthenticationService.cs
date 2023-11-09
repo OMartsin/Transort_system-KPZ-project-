@@ -16,9 +16,10 @@ public class AuthenticationService : IAuthenticationService
         _context = context;
     }
 
-    public async Task<string> AuthenticateUserAsync(string username, string password)
+    public string AuthenticateUser(string username, string password)
     {
-        var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == username && u.Password == password);
+        var user = _context.Users.SingleOrDefault(u => u.Username == username 
+                                                                  && u.Password == password);
 
         if (user != null)
         {
