@@ -21,13 +21,13 @@ namespace TransportSystem.Controllers
         }
 
         [HttpGet(Name = "GetAgents")]
-        public IEnumerable<Agent> GetAgents()
+        public IEnumerable<AgentDto> GetAgents()
         {
             return _agentService.GetAgents();
         }
 
         [HttpGet("{id}", Name = "GetAgent")]
-        public ActionResult<Agent> GetAgent(int id)
+        public ActionResult<AgentDto> GetAgent(int id)
         {
             try
             {
@@ -41,7 +41,7 @@ namespace TransportSystem.Controllers
         }
 
         [HttpPost(Name = "AddAgent")]
-        public ActionResult<Agent> AddAgent([FromBody] AgentInputDto agent)
+        public ActionResult<AgentDto> AddAgent([FromBody] AgentDto agent)
         {
             try
             {
@@ -55,12 +55,12 @@ namespace TransportSystem.Controllers
         }
 
         [HttpPut("{id}", Name = "UpdateAgent")]
-        public IActionResult UpdateAgent(int id, [FromBody] Agent agent)
+        public ActionResult<AgentDto> UpdateAgent([FromBody] AgentDto agent)
         {
             try
             {
-                _agentService.UpdateAgent(id, agent);
-                return NoContent();
+                var newAgent = _agentService.UpdateAgent(agent);
+                return Ok(newAgent);
             }
             catch (Exception e)
             {

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TransportSystem.DTO;
-using TransportSystem.Models;
 using TransportSystem.Services;
 using AutoMapper;
 

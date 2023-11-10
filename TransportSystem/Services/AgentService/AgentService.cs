@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using AutoMapper;
 using TransportSystem.DTO;
 using TransportSystem.Models;
 using Microsoft.EntityFrameworkCore;
@@ -9,28 +10,30 @@ namespace TransportSystem.Services.AgentService
     public class AgentService : IAgentService
     {
         private readonly TransportSystemContext _context;
+        private readonly IMapper _mapper;
 
-        public AgentService(TransportSystemContext context)
+        public AgentService(TransportSystemContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
-        public IEnumerable<Agent> GetAgents()
+        public IEnumerable<AgentDto> GetAgents()
         {
-            return _context.Agents.ToList();
+            return _mapper.Map<IEnumerable<AgentDto>>(_context.Agents.ToList());
         }
 
-        public Agent GetAgentById(int id)
+        public AgentDto GetAgentById(int id)
         {
             var agent = _context.Agents.Find(id);
             if (agent == null)
             {
                 throw new Exception("Agent not found");
             }
-            return agent;
+            return _mapper.Map<AgentDto>(agent);
         }
 
-        public Agent AddAgent(AgentInputDto agentInputDto)
+        public AgentDto AddAgent(AgentDto agentInputDto)
         {
             var user = new User
             {
@@ -53,26 +56,20 @@ namespace TransportSystem.Services.AgentService
             };
             _context.Agents.Add(agent);
             _context.SaveChanges();
-            return agent;
+            return _mapper.Map<AgentDto>(agent);
         }
 
-        public void UpdateAgent(int id, Agent agent)
+        public AgentDto UpdateAgent(AgentDto agent)
         {
-            var existingAgent = _context.Agents.Find(id);
-            if (existingAgent == null)
-            {
+            var existingAgent = _context.Agents.Find(agent.AgentId);
+            if (existingAgent == null) {
                 throw new Exception("Agent not found");
             }
-
-            existingAgent.AgentName = agent.AgentName;
-            existingAgent.AgentEdrpou = agent.AgentEdrpou;
-            existingAgent.AgentAddress = agent.AgentAddress;
-            existingAgent.AgentAccount = agent.AgentAccount;
-            existingAgent.AgentPhone = agent.AgentPhone;
-            existingAgent.AgentEmail = agent.AgentEmail;
-            existingAgent.AgentIpn = agent.AgentIpn;
+            
+            _context.Entry(existingAgent).CurrentValues.SetValues(agent);
 
             _context.SaveChanges();
+            return _mapper.Map<AgentDto>(existingAgent);
         }
 
         public void DeleteAgent(int id)

@@ -13,7 +13,7 @@ public partial class Trip
 
     public int TripTrailerId { get; set; }
 
-    public int TripCargoName { get; set; }
+    public string TripCargoName { get; set; }
 
     public int TripAgentId { get; set; }
 

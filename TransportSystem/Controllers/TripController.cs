@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TransportSystem.DTO;
-using TransportSystem.Models;
 using TransportSystem.Services.TripService;
 
 namespace TransportSystem.Controllers
@@ -19,7 +18,7 @@ namespace TransportSystem.Controllers
         }
 
         [HttpGet(Name = "GetTrips")]
-        public ActionResult<IEnumerable<Trip>> GetTrips()
+        public ActionResult<IEnumerable<TripDto>> GetTrips()
         {
             try
             {
@@ -33,7 +32,7 @@ namespace TransportSystem.Controllers
         }
 
         [HttpGet("{id}", Name = "GetTrip")]
-        public ActionResult<Trip> GetTrip(int id)
+        public ActionResult<TripDto> GetTrip(int id)
         {
             try
             {
@@ -47,7 +46,7 @@ namespace TransportSystem.Controllers
         }
 
         [HttpPost(Name = "AddTrip")]
-        public ActionResult<Trip> AddTrip([FromBody] TripInputDto tripDto)
+        public ActionResult<TripDto> AddTrip([FromBody] TripDto tripDto)
         {
             try
             {
@@ -61,12 +60,12 @@ namespace TransportSystem.Controllers
         }
 
         [HttpPut("{id}", Name = "UpdateTrip")]
-        public IActionResult UpdateTrip(int id, [FromBody] TripInputDto tripDto)
+        public ActionResult UpdateTrip( [FromBody] TripDto tripDto)
         {
             try
             {
-                _tripService.UpdateTrip(id, tripDto);
-                return NoContent();
+                var trip = _tripService.UpdateTrip(tripDto);
+                return Ok(trip);
             }
             catch (Exception e)
             {

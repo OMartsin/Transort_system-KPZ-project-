@@ -49,7 +49,8 @@ namespace TransportSystem.Services.TrailerService
             {
                 throw new Exception("Trailer not found");
             }
-            _context.Trailers.Update(_mapper.Map<Trailer>(trailer));
+
+            _context.Entry(existingTrailer).CurrentValues.SetValues(_mapper.Map<Trailer>(trailer));
             _context.SaveChanges();
             return trailer;
         }

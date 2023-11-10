@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using TransportSystem.DTO;
 using TransportSystem.Models;
 
@@ -7,117 +8,123 @@ namespace TransportSystem.Services.DriverService
         public class DriverService : IDriverService
     {
         private readonly TransportSystemContext _transportSystemContext;
+        private readonly IMapper _mapper;
 
-        public DriverService(TransportSystemContext transportSystemContext)
+        public DriverService(TransportSystemContext transportSystemContext, IMapper mapper)
         {
             _transportSystemContext = transportSystemContext;
+            _mapper = mapper;
         }
 
-        public IEnumerable<Driver> GetDrivers()
+        public IEnumerable<DriverDto> GetDrivers()
         {
-            return _transportSystemContext.Drivers.ToList();
+            return _mapper.Map<IEnumerable<DriverDto>>(_transportSystemContext.Drivers.ToList());
         }
-
-        public IEnumerable<DriverDto> GetDriversDto()
-        {
-            var drivers = _transportSystemContext.Drivers.ToList();
-            var driversDto = drivers.Select(driver => new DriverDto(driver)).ToList();
-            return driversDto;
-        }
-
-        public Driver GetDriver(int id)
+        
+        public DriverDto GetDriver(int id)
         {
             var driver = _transportSystemContext.Drivers.Find(id);
             if (driver == null) throw new Exception("Driver not found");
-            return driver;
+            return _mapper.Map<DriverDto>(driver);
         }
 
-        public Driver AddDriver(Driver driver)
+        public DriverDto AddDriver(DriverDto driverDto)
         {
-            if (_transportSystemContext.Drivers.Any(d => d.DriverIndividualTaxNumber == driver.DriverIndividualTaxNumber))
+            if (_transportSystemContext.Drivers.Any(d => d.DriverIndividualTaxNumber 
+                                                         == driverDto.DriverIndividualTaxNumber))
             {
                 throw new Exception("Driver with this individual tax number already exists");
             }
 
-            _transportSystemContext.Drivers.Add(driver);
-            _transportSystemContext.Users.Add(new User
-            {
-                Username = driver.DriverName.ToLower() + "_" + driver.DriverSurname.ToLower(),
-                Password = driver.DriverBirthday.ToString("ddMMyyyy"),
+            var user = new User {
+                Username = driverDto.DriverName.ToLower() + "_" + driverDto.DriverSurname.ToLower(),
+                Password = driverDto.DriverBirthday.ToString("ddMMyyyy"),
                 Role = "driver",
-            });
-            _transportSystemContext.SaveChanges();
-            driver.UserId = _transportSystemContext.Users.Last().UserId;
-            _transportSystemContext.Drivers.Update(driver);
-            _transportSystemContext.SaveChanges();
-            return driver;
-        }
-
-        public DriverLicense AddDriverLicense(int driverId, DriverLicense driverLicense)
-        {
-            var driver = _transportSystemContext.Drivers.Find(driverId);
-            if (driver == null) throw new Exception("Driver not found");
-
-            driverLicense.DriverId = driverId;
-            _transportSystemContext.DriverLicenses.Add(driverLicense);
-            _transportSystemContext.SaveChanges();
-            return driverLicense;
-        }
-
-        public DriverContract AddDriverContract(int driverId, DriverContractDTO driverContract)
-        {
-            var driver = _transportSystemContext.Drivers.Find(driverId);
-            if (driver == null) throw new Exception("Driver not found");
-            var addDriverContract = new DriverContract
-            {
-                ContractNumber = driverContract.ContractNumber,
-                ContractIssueDate = driverContract.ContractIssueDate,
-                ContractExpiryDate = driverContract.ContractExpiryDate,
-                ContractDriverId = driverId
             };
-            _transportSystemContext.DriverContracts.Add(addDriverContract);
+            _transportSystemContext.Users.Add(user);
             _transportSystemContext.SaveChanges();
-            return addDriverContract;
+            var driver = _mapper.Map<Driver>(driverDto);
+            driver.UserId = user.UserId;
+            _transportSystemContext.Drivers.Add(driver);
+            _transportSystemContext.SaveChanges();
+            return _mapper.Map<DriverDto>(driver);
         }
 
-        public Driver UpdateDriver(Driver driver)
+        public DriverLicenseDto AddDriverLicense(DriverLicenseDto driverLicenseDto)
+        {
+            var driver = _transportSystemContext.Drivers.Find(driverLicenseDto.DriverId);
+            if (driver == null)
+            {
+                throw new Exception("Driver not found");
+            }
+
+            var license = _mapper.Map<DriverLicense>(driverLicenseDto);
+
+            foreach (var existingCategoryDto in driverLicenseDto.Categories)
+            {
+                var category = _transportSystemContext.LicenseCategories
+                    .SingleOrDefault(lc => lc.CategoryId == existingCategoryDto.CategoryId);
+
+                if (category == null)
+                {
+                    throw new Exception("Category not found");
+                }
+
+                var mappedCategory = _mapper.Map<LicenseCategory>(category);
+                license.Categories.Add(mappedCategory);
+            }
+
+            _transportSystemContext.DriverLicenses.Add(license);
+            _transportSystemContext.SaveChanges();
+
+            return _mapper.Map<DriverLicenseDto>(license);
+        }
+
+
+
+
+        public DriverContractDto AddDriverContract(DriverContractDto driverContract)
+        {
+            var driver = _transportSystemContext.Drivers.Find(driverContract.ContractDriverId);
+            if (driver == null) throw new Exception("Driver not found");
+            var contract = _mapper.Map<DriverContract>(driverContract);
+            _transportSystemContext.DriverContracts.Add(contract);
+            _transportSystemContext.SaveChanges();
+            return _mapper.Map<DriverContractDto>(contract);
+        }
+
+        public DriverDto UpdateDriver(DriverDto driver)
         {
             var editDriver = _transportSystemContext.Drivers.Find(driver.DriverId);
             if (editDriver == null) throw new Exception("Driver not found");
-            editDriver.DriverName = driver.DriverName;
-            editDriver.DriverSurname = driver.DriverSurname;
-            editDriver.DriverBirthday = driver.DriverBirthday;
-            editDriver.DriverIndividualTaxNumber = driver.DriverIndividualTaxNumber;
-            _transportSystemContext.Drivers.Update(editDriver);
+            _transportSystemContext.Entry(editDriver).CurrentValues.SetValues(
+                _mapper.Map<Driver>(driver));
             _transportSystemContext.SaveChanges();
-            return driver;
+            return _mapper.Map<DriverDto>(editDriver);
         }
 
-        public DriverLicense UpdateDriverLicense(int driverId, DriverLicense driverLicense)
+        public DriverLicenseDto UpdateDriverLicense(DriverLicenseDto driverLicense)
         {
             var editDriverLicense = _transportSystemContext.DriverLicenses
-                .SingleOrDefault(dl => dl.DriverId == driverId && dl.LicenseId == driverLicense.LicenseId);
+                .SingleOrDefault(dl => dl.DriverId == driverLicense.DriverId
+                                       && dl.LicenseId == driverLicense.LicenseId);
             if (editDriverLicense == null) throw new Exception("Driver license not found");
-            editDriverLicense.LicenseId = driverLicense.LicenseId;
-            editDriverLicense.LicenseNumber = driverLicense.LicenseNumber;
-            editDriverLicense.ExpirationDate = driverLicense.ExpirationDate;
-            _transportSystemContext.DriverLicenses.Update(editDriverLicense);
+            _transportSystemContext.Entry(editDriverLicense).CurrentValues.SetValues(
+                _mapper.Map<DriverLicense>(driverLicense));
             _transportSystemContext.SaveChanges();
-            return driverLicense;
+            return _mapper.Map<DriverLicenseDto>(editDriverLicense);
         }
 
-        public DriverContract UpdateDriverContract(int driverId, DriverContract driverContract)
+        public DriverContractDto UpdateDriverContract(DriverContractDto driverContract)
         {
             var editDriverContract = _transportSystemContext.DriverContracts
-                .SingleOrDefault(dc => dc.ContractDriverId == driverId && dc.ContractId == driverContract.ContractId);
+                .SingleOrDefault(dc => dc.ContractDriverId == driverContract.ContractDriverId
+                                       && dc.ContractId == driverContract.ContractId);
             if (editDriverContract == null) throw new Exception("Driver contract not found");
-            editDriverContract.ContractId = driverContract.ContractId;
-            editDriverContract.ContractNumber = driverContract.ContractNumber;
-            editDriverContract.ContractIssueDate = driverContract.ContractIssueDate;
-            editDriverContract.ContractExpiryDate = driverContract.ContractExpiryDate;
-            _transportSystemContext.DriverContracts.Update(editDriverContract);
+            _transportSystemContext.Entry(editDriverContract).CurrentValues.SetValues(
+                _mapper.Map<DriverContract>(driverContract));
             _transportSystemContext.SaveChanges();
-            return driverContract;
+            return _mapper.Map<DriverContractDto>(editDriverContract);
         }
 
         public void DeleteDriver(int id)

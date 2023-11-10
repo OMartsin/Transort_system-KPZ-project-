@@ -5,9 +5,9 @@ namespace TransportSystem.Services.AgentService;
 
 public interface IAgentService
 {
-    IEnumerable<Agent> GetAgents();
-    Agent GetAgentById(int id);
-    Agent AddAgent(AgentInputDto agent);
-    void UpdateAgent(int id, Agent agent);
+    IEnumerable<AgentDto> GetAgents();
+    AgentDto GetAgentById(int id);
+    AgentDto AddAgent(AgentDto agent);
+    AgentDto UpdateAgent(AgentDto agent);
     void DeleteAgent(int id);
 }

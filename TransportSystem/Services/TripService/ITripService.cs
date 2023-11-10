@@ -5,9 +5,9 @@ namespace TransportSystem.Services.TripService;
 
 public interface ITripService
 {
-    IEnumerable<Trip> GetTrips();
-    Trip GetTripById(int id);
-    Trip AddTrip(TripInputDto tripDto);
-    void UpdateTrip(int id, TripInputDto tripDto);
+    IEnumerable<TripDto> GetTrips();
+    TripDto GetTripById(int id);
+    TripDto AddTrip(TripDto tripDto);
+    TripDto UpdateTrip(TripDto tripDto);
     void DeleteTrip(int id);
 }

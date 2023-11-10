@@ -19,7 +19,7 @@ namespace TransportSystem.Controllers
 
         [Authorize]
         [HttpGet("{id}", Name = "GetDriver")]
-        public ActionResult<Driver> GetDriver(int id)
+        public ActionResult<DriverDto> GetDriver(int id)
         {
             try
             {
@@ -34,7 +34,7 @@ namespace TransportSystem.Controllers
 
         [Authorize(Policy = "AdminOnly")]
         [HttpGet(Name = "GetDrivers")]
-        public ActionResult<IEnumerable<Driver>> GetDrivers()
+        public ActionResult<IEnumerable<DriverDto>> GetDrivers()
         {
             try
             {
@@ -43,13 +43,13 @@ namespace TransportSystem.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(new { message = ex.Message});
             }
         }
 
         [Authorize(Policy = "AdminOnly")]
         [HttpPost(Name = "AddDriver")]
-        public ActionResult<Driver> AddDriver([FromBody] Driver driver)
+        public ActionResult<DriverDto> AddDriver([FromBody] DriverDto driver)
         {
             try
             {
@@ -58,13 +58,13 @@ namespace TransportSystem.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(new { message = ex.ToString() });
             }
         }
 
         [Authorize(Policy = "AdminOnly")]
         [HttpPut("{id}", Name = "UpdateDriver")]
-        public ActionResult<Driver> UpdateDriver(int id, [FromBody] Driver driver)
+        public ActionResult<DriverDto> UpdateDriver([FromBody] DriverDto driver)
         {
             try
             {
@@ -78,30 +78,29 @@ namespace TransportSystem.Controllers
         }
 
         [Authorize(Policy = "AdminOnly")]
-        [HttpPost("{driverId}/licenses", Name = "AddDriverLicense")]
-        public ActionResult<DriverLicense> AddDriverLicense(int driverId, 
-            [FromBody] DriverLicense driverLicense)
+        [HttpPost("licenses", Name = "AddDriverLicense")]
+        public ActionResult<DriverDto> AddDriverLicense(
+            [FromBody] DriverLicenseDto driverLicense)
         {
             try
             {
-                var addedLicense = _driverService.AddDriverLicense(driverId, driverLicense);
+                var addedLicense = _driverService.AddDriverLicense(driverLicense);
                 return Ok(addedLicense);
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(new { message = ex.ToString() });
             }
         }
 
         [Authorize(Policy = "AdminOnly")]
-        [HttpPut("{driverId}/licenses/{licenseId}", Name = "UpdateDriverLicense")]
-        public ActionResult<DriverLicense> UpdateDriverLicense(int driverId, int licenseId, 
-            [FromBody] DriverLicense driverLicense)
+        [HttpPut("licenses/", Name = "UpdateDriverLicense")]
+        public ActionResult<DriverLicenseDto> UpdateDriverLicense(
+            [FromBody] DriverLicenseDto driverLicense)
         {
             try
             {
-                driverLicense.LicenseId = licenseId;
-                var updatedLicense = _driverService.UpdateDriverLicense(driverId, driverLicense);
+                var updatedLicense = _driverService.UpdateDriverLicense(driverLicense);
                 return Ok(updatedLicense);
             }
             catch (Exception ex)
@@ -111,13 +110,13 @@ namespace TransportSystem.Controllers
         }
 
         [Authorize(Policy = "AdminOnly")]
-        [HttpPost("{driverId}/contracts", Name = "AddDriverContract")]
-        public ActionResult<DriverContract> AddDriverContract(int driverId, 
-            [FromBody] DriverContractDTO driverContractDto)
+        [HttpPost("contracts/", Name = "AddDriverContract")]
+        public ActionResult<DriverContractDto> AddDriverContract(
+            [FromBody] DriverContractDto driverContractDto)
         {
             try
             {
-                var addedContract = _driverService.AddDriverContract(driverId, driverContractDto);
+                var addedContract = _driverService.AddDriverContract(driverContractDto);
                 return Ok(addedContract);
             }
             catch (Exception ex)
@@ -127,14 +126,13 @@ namespace TransportSystem.Controllers
         }
 
         [Authorize(Policy = "AdminOnly")]
-        [HttpPut("{driverId}/contracts/{contractId}", Name = "UpdateDriverContract")]
-        public ActionResult<DriverContract> UpdateDriverContract(int driverId, int contractId, 
-            [FromBody] DriverContract driverContract)
+        [HttpPut("contracts/", Name = "UpdateDriverContract")]
+        public ActionResult<DriverContractDto> UpdateDriverContract(
+            [FromBody] DriverContractDto driverContract)
         {
             try
             {
-                driverContract.ContractId = contractId;
-                var updatedContract = _driverService.UpdateDriverContract(driverId, driverContract);
+                var updatedContract = _driverService.UpdateDriverContract(driverContract);
                 return Ok(updatedContract);
             }
             catch (Exception ex)
@@ -159,7 +157,7 @@ namespace TransportSystem.Controllers
         }
 
         [Authorize(Policy = "AdminOnly")]
-        [HttpDelete("{driverId}/licenses/{licenseId}")]
+        [HttpDelete("licenses/")]
         public IActionResult DeleteDriverLicense(int driverId, int licenseId)
         {
             try
@@ -174,7 +172,7 @@ namespace TransportSystem.Controllers
         }
 
         [Authorize(Policy = "AdminOnly")]
-        [HttpDelete("{driverId}/contracts/{contractId}")]
+        [HttpDelete("contracts/")]
         public IActionResult DeleteDriverContract(int driverId, int contractId)
         {
             try

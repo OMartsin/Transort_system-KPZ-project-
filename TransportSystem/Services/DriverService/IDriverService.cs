@@ -5,15 +5,14 @@ namespace TransportSystem.Services.DriverService;
 
 public interface IDriverService
 {
-    IEnumerable<Driver> GetDrivers();
-    IEnumerable<DriverDto> GetDriversDto();
-    Driver GetDriver(int id);
-    Driver AddDriver(Driver driver);
-    DriverLicense AddDriverLicense(int driverId, DriverLicense driverLicense);
-    DriverContract AddDriverContract(int driverId, DriverContractDTO driverContract);
-    Driver UpdateDriver(Driver driver);
-    DriverLicense UpdateDriverLicense(int driverId, DriverLicense driverLicense);
-    DriverContract UpdateDriverContract(int driverId, DriverContract driverContract);
+    IEnumerable<DriverDto> GetDrivers();
+    DriverDto GetDriver(int id);
+    DriverDto AddDriver(DriverDto driver);
+    DriverLicenseDto AddDriverLicense(DriverLicenseDto driverLicense);
+    DriverContractDto AddDriverContract(DriverContractDto driverContract);
+    DriverDto UpdateDriver(DriverDto driver);
+    DriverLicenseDto UpdateDriverLicense( DriverLicenseDto driverLicense);
+    DriverContractDto UpdateDriverContract(DriverContractDto driverContract);
     void DeleteDriver(int id);
     void DeleteDriverLicense(int driverId, int licenseId);
     void DeleteDriverContract(int driverId, int contractId);
