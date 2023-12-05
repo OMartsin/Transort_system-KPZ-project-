@@ -1,0 +1,59 @@
+﻿<Window x:Class="WpfApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApp"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <TabControl>
+        <!-- Truck Tab -->
+        <TabItem Header="Trucks">
+            <Grid>
+                <DataGrid x:Name="TrucksDataGrid" AutoGenerateColumns="False" CanUserAddRows="False" Margin="10">
+                    <DataGrid.Columns>
+                        <!-- Define columns for each Truck property -->
+                        <DataGridTextColumn Header="ID" Binding="{Binding TruckId}" />
+                        <DataGridTextColumn Header="Number Plate" Binding="{Binding TruckNumberPlate}" Width="*" />
+                        <DataGridTextColumn Header="Vendor" Binding="{Binding TruckVendor}" Width="*"/>
+                        <DataGridTextColumn Header="Model" Binding="{Binding TruckModel}" Width="*" />
+                        <DataGridTextColumn Header="Fuel type" Binding="{Binding TruckFuelType}" Width="*"/>
+                        <DataGridTextColumn Header="EURO" Binding="{Binding TruckEcoStandartEuro}" Width="*"/>
+                        <DataGridTextColumn Header="Weight" Binding="{Binding TruckWeight}" Width="*"/>
+                        <DataGridTextColumn Header="Front tyres" Binding="{Binding TruckFrontTyresType}" Width="*"/>
+                        <DataGridTextColumn Header="Rear tyres" Binding="{Binding TruckRearTyresType}" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+                
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10">
+                    <Button x:Name="AddTruckButton" Content="Add" Margin="5" Click="AddTruckButton_Click" />
+                    <Button x:Name="DeleteTruckButton" Content="Delete" Margin="5" Click="DeleteTruckButton_Click" />
+                    <Button x:Name="UpdateTruckButton" Content="Update" Margin="5" Click="UpdateTruckButton_Click" />
+                </StackPanel>
+            </Grid>
+        </TabItem>
+
+        <!-- Trailer Tab -->
+        <TabItem Header="Trailers">
+            <Grid>
+                <DataGrid x:Name="TrailersDataGrid" AutoGenerateColumns="False" CanUserAddRows="False" Margin="10">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Binding="{Binding TrailerId}" Width="50"/>
+                        <DataGridTextColumn Header="Number Plate" Binding="{Binding TrailerNumberPlate}" Width="*"/>
+                        <DataGridTextColumn Header="Vendor" Binding="{Binding TrailerVendor}" Width="*"/>
+                        <DataGridTextColumn Header="Model" Binding="{Binding TrailerModel}" Width="*"/>
+                        <DataGridTextColumn Header="Weight" Binding="{Binding TrailerWeight}" Width="100"/>
+                        <DataGridTextColumn Header="Capacity" Binding="{Binding TrailerCapacity}" Width="100"/>
+                        <DataGridTextColumn Header="Tyres Type" Binding="{Binding TrailerTyresType}" Width="*"/>
+                        <DataGridTextColumn Header="Type" Binding="{Binding TrailerType}" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10">
+                    <Button x:Name="AddTrailerButton" Content="Add" Margin="5" Click="AddTrailerButton_Click" />
+                    <Button x:Name="DeleteTrailerButton" Content="Delete" Margin="5" Click="DeleteTrailerButton_Click" />
+                    <Button x:Name="UpdateTrailerButton" Content="Update" Margin="5" Click="UpdateTrailerButton_Click" />
+                </StackPanel>
+            </Grid>
+        </TabItem>
+    </TabControl>
+</Window>

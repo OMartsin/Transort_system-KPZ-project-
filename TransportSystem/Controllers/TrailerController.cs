@@ -9,7 +9,6 @@ namespace TransportSystem.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-[Authorize(Policy = "AdminOnly")]
 public class TrailerController : ControllerBase {
     private readonly ITrailerService _trailerService;
     private readonly ITransportInsuranceService _transportInsuranceService;
@@ -65,10 +64,10 @@ public class TrailerController : ControllerBase {
     }
     
     [HttpPut(Name = "UpdateTrailer")]
-    public ActionResult UpdateTrailer([FromBody] TrailerDto trailer) {
+    public ActionResult<TrailerDto> UpdateTrailer([FromBody] TrailerDto trailer) {
         try { 
-            _trailerService.UpdateTrailer(trailer);
-            return Ok();
+            var updateTrailer = _trailerService.UpdateTrailer(trailer);
+            return Ok(updateTrailer);
         }
         catch (Exception e) {
             return BadRequest(new { message = e.Message });

@@ -7,7 +7,6 @@ using AutoMapper;
 namespace TransportSystem.Controllers {
     [ApiController]
     [Route("[controller]")]
-    [Authorize(Policy = "AdminOnly")]
     public class TruckController : ControllerBase {
         private readonly ITruckService _truckService;
         private readonly ITransportInsuranceService _insuranceService;

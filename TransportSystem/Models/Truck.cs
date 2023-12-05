@@ -21,7 +21,7 @@ public partial class Truck
 
     public string? TruckFrontTyresType { get; set; }
 
-    public string? TruckRearTyperType { get; set; }
+    public string? TruckRearTyresType { get; set; }
 
     public virtual ICollection<TransportInsurance> TransportInsurances { get; set; } = new List<TransportInsurance>();
 

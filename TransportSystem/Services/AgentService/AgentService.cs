@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using AutoMapper;
 using TransportSystem.DTO;
 using TransportSystem.Models;
 using Microsoft.EntityFrameworkCore;
+using MySqlConnector;
 
 namespace TransportSystem.Services.AgentService
 {
@@ -35,28 +37,31 @@ namespace TransportSystem.Services.AgentService
 
         public AgentDto AddAgent(AgentDto agentInputDto)
         {
-            var user = new User
+            using (var connection = new MySqlConnection("Server=" +
+                                                        "localhost;Port=3306;Database=" +
+                                                        "transport_system;User=root;Password=12345678;"
+            ))
             {
-                Username = agentInputDto.AgentName,
-                Password = agentInputDto.AgentEdrpou,
-                Role = "agent",
-            };
-            _context.Users.Add(user);
-            _context.SaveChanges();
-            var agent = new Agent()
-            {
-                AgentName = agentInputDto.AgentName,
-                AgentEdrpou = agentInputDto.AgentEdrpou,
-                AgentAddress = agentInputDto.AgentAddress,
-                AgentAccount = agentInputDto.AgentAccount,
-                AgentPhone = agentInputDto.AgentPhone,
-                AgentEmail = agentInputDto.AgentEmail,
-                AgentIpn = agentInputDto.AgentIpn,
-                UserId = user.UserId
-            };
-            _context.Agents.Add(agent);
-            _context.SaveChanges();
-            return _mapper.Map<AgentDto>(agent);
+                connection.Open();
+
+                using (var command = new MySqlCommand("AddAgent", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    // Add parameters
+                    command.Parameters.AddWithValue("@p_AgentName", agentInputDto.AgentName);
+                    command.Parameters.AddWithValue("@p_AgentEdrpou", agentInputDto.AgentEdrpou);
+                    command.Parameters.AddWithValue("@p_AgentAddress", agentInputDto.AgentAddress);
+                    command.Parameters.AddWithValue("@p_AgentAccount", agentInputDto.AgentAccount);
+                    command.Parameters.AddWithValue("@p_AgentPhone", agentInputDto.AgentPhone);
+                    command.Parameters.AddWithValue("@p_AgentEmail", agentInputDto.AgentEmail);
+                    command.Parameters.AddWithValue("@p_AgentIpn", agentInputDto.AgentIpn);
+
+                    command.ExecuteNonQuery();
+                }
+            }
+
+            return agentInputDto;
         }
 
         public AgentDto UpdateAgent(AgentDto agent)

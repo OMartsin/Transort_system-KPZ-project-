@@ -1,7 +1,9 @@
-﻿namespace TransportSystem.DTO; 
+﻿using System.Collections.Generic;
+using TransportSystem.Models;
 
-public class TruckDto
-{
+namespace WpfApp.Models; 
+
+public class Truck {
     public int TruckId { get; set; }
     public string TruckNumberPlate { get; set; }
     public string TruckFuelType { get; set; }
@@ -11,6 +13,4 @@ public class TruckDto
     public int TruckWeight { get; set; }
     public string TruckFrontTyresType { get; set; }
     public string TruckRearTyresType { get; set; }
-    public ICollection<TransportInsuranceDto> 
-        TransportInsurances { get; set; } = new List<TransportInsuranceDto>();
 }

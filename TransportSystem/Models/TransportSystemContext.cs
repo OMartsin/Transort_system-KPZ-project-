@@ -41,7 +41,8 @@ public partial class TransportSystemContext : DbContext
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseMySql("server=localhost;database=transport_system;user=root;password=12345678", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.32-mysql"));
+        => optionsBuilder.UseMySql("server=localhost;database=transport_system;user=root;password=12345678", 
+            Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.32-mysql"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -352,7 +353,7 @@ public partial class TransportSystemContext : DbContext
             entity.Property(e => e.TruckFuelType).HasMaxLength(10);
             entity.Property(e => e.TruckModel).HasMaxLength(30);
             entity.Property(e => e.TruckNumberPlate).HasMaxLength(10);
-            entity.Property(e => e.TruckRearTyperType).HasMaxLength(128);
+            entity.Property(e => e.TruckRearTyresType).HasMaxLength(128);
             entity.Property(e => e.TruckVendor).HasMaxLength(20);
             
             entity.HasMany( t => t.TransportInsurances)

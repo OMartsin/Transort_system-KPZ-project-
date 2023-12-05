@@ -1,0 +1,45 @@
+﻿<Window x:Class="WpfApp.TruckDetailsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:WpfApp"
+        mc:Ignorable="d"
+        Title="TruckDetailsWindow" Height="550" Width="800">
+    <Grid Margin="10">
+        <StackPanel>
+            <Label Content="Number Plate:"/>
+            <TextBox x:Name="NumberPlateTextBox" Margin="0,0,0,10"/>
+            
+            <Label Content="Fuel Type:"/>
+            <TextBox x:Name="FuelTypeTextBox" Margin="0,0,0,10"/>
+            
+            <Label Content="Vendor:"/>
+            <TextBox x:Name="VendorTextBox" Margin="0,0,0,10"/>
+            
+            <Label Content="Model:"/>
+            <TextBox x:Name="ModelTextBox" Margin="0,0,0,10"/>
+
+            <Label Content="Eco Standard EURO:"/>
+            <TextBox x:Name="EcoStandartEuroTextBox" Margin="0,0,0,10"/>
+            
+            <Label Content="Weight:"/>
+            <TextBox x:Name="WeightTextBox" Margin="0,0,0,10"/>
+
+            <Label Content="Front Tyres Type:"/>
+            <TextBox x:Name="FrontTyresTypeTextBox" Margin="0,0,0,10"/>
+            
+            <Label Content="Rear Tyres Type:"/>
+            <TextBox x:Name="RearTyresTypeTextBox" Margin="0,0,0,10"/>
+            <Grid Margin="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Content="Save" Click="SaveButton_Click" Grid.Column="0" Margin="5"/>
+                <Button Content="Cancel" Click="CancelButton_Click" Grid.Column="1" Margin="5"/>
+            </Grid>
+        </StackPanel>
+    </Grid>
+</Window>
